@@ -26,14 +26,16 @@ import AssemblyKeys._
 object SparkBuild extends Build {
   // Hadoop version to build against. For example, "0.20.2", "0.20.205.0", or
   // "1.0.4" for Apache releases, or "0.20.2-cdh3u5" for Cloudera Hadoop.
-  val HADOOP_VERSION = "1.0.4"
-  val HADOOP_MAJOR_VERSION = "1"
-  val HADOOP_YARN = false
+  // val HADOOP_VERSION = "1.0.4"
+  // val HADOOP_MAJOR_VERSION = "1"
+  // val HADOOP_YARN = false
 
   // For Hadoop 2 versions such as "2.0.0-mr1-cdh4.1.1", set the HADOOP_MAJOR_VERSION to "2"
-  //val HADOOP_VERSION = "2.0.0-mr1-cdh4.1.1"
-  //val HADOOP_MAJOR_VERSION = "2"
-  //val HADOOP_YARN = false
+  val HADOOP_VERSION = "2.0.0-mr1-cdh4.3.0"
+  val HADOOP_MAJOR_VERSION = "2"
+  val HADOOP_YARN = false
+  
+  val HBASE_VERSION = "0.94.6-cdh4.3.0"
 
   // For Hadoop 2 YARN support
   //val HADOOP_VERSION = "2.0.2-alpha"
@@ -83,7 +85,8 @@ object SparkBuild extends Build {
 
     // For Sonatype publishing
     resolvers ++= Seq("sonatype-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
-      "sonatype-staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2/"),
+      "sonatype-staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2/",
+      "cloudera" at "https://repository.cloudera.com/artifactory/cloudera-repos/"),
 
     publishMavenStyle := true,
 
@@ -222,7 +225,7 @@ object SparkBuild extends Build {
     libraryDependencies ++= Seq(
       "com.twitter" % "algebird-core_2.9.2" % "0.1.11",
 
-      "org.apache.hbase" % "hbase" % "0.94.6" excludeAll(excludeNetty, excludeAsm),
+      "org.apache.hbase" % "hbase" % HBASE_VERSION excludeAll(excludeNetty, excludeAsm),
 
       "org.apache.cassandra" % "cassandra-all" % "1.2.5"
         exclude("com.google.guava", "guava")
