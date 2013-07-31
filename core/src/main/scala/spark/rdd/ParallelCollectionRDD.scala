@@ -23,7 +23,6 @@ import scala.collection.Map
 import spark._
 import java.io._
 import scala.Serializable
-import akka.serialization.JavaSerializer
 import java.nio.ByteBuffer
 
 private[spark] class ParallelCollectionPartition[T: ClassManifest](
@@ -53,20 +52,17 @@ private[spark] class ParallelCollectionPartition[T: ClassManifest](
 
     sfactory match {
       case js: JavaSerializer => out.defaultWriteObject()
-      case _ => {
-
+      case _ =>
         out.writeLong(rddId)
         out.writeInt(slice)
 
         val ser = sfactory.newInstance()
-
         out.writeInt(values.size)
         values.foreach(v => {
           val bb = ser.serialize(v)
           out.writeInt(bb.remaining())
           Utils.writeByteBuffer(bb, out)
         })
-      }
     }
   }
 
