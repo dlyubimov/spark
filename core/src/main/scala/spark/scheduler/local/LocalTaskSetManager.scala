@@ -64,11 +64,11 @@ private[spark] class LocalTaskSetManager(sched: LocalScheduler, val taskSet: Tas
   }
 
   override def addSchedulable(schedulable: Schedulable): Unit = {
-    //nothing
+    // nothing
   }
 
   override def removeSchedulable(schedulable: Schedulable): Unit = {
-    //nothing
+    // nothing
   }
 
   override def getSchedulableByName(name: String): Schedulable = {
@@ -76,7 +76,7 @@ private[spark] class LocalTaskSetManager(sched: LocalScheduler, val taskSet: Tas
   }
 
   override def executorLost(executorId: String, host: String): Unit = {
-    //nothing
+    // nothing
   }
 
   override def checkSpeculatableTasks() = true

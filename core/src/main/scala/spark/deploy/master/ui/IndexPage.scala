@@ -25,16 +25,24 @@ import akka.dispatch.Await
 import akka.pattern.ask
 import akka.util.duration._
 
+import net.liftweb.json.JsonAST.JValue
+
 import spark.Utils
 import spark.deploy.DeployWebUI
 import spark.deploy.DeployMessages.{MasterStateResponse, RequestMasterState}
+import spark.deploy.JsonProtocol
 import spark.deploy.master.{ApplicationInfo, WorkerInfo}
 import spark.ui.UIUtils
-
 
 private[spark] class IndexPage(parent: MasterWebUI) {
   val master = parent.master
   implicit val timeout = parent.timeout
+
+  def renderJson(request: HttpServletRequest): JValue = {
+    val stateFuture = (master ? RequestMasterState)(timeout).mapTo[MasterStateResponse]
+    val state = Await.result(stateFuture, 30 seconds)
+    JsonProtocol.writeMasterState(state)
+  }
 
   /** Index view listing applications and executors */
   def render(request: HttpServletRequest): Seq[Node] = {
@@ -73,8 +81,7 @@ private[spark] class IndexPage(parent: MasterWebUI) {
 
         <div class="row">
           <div class="span12">
-            <h3> Workers </h3>
-            <br/>
+            <h4> Workers </h4>
             {workerTable}
           </div>
         </div>
@@ -83,8 +90,8 @@ private[spark] class IndexPage(parent: MasterWebUI) {
 
         <div class="row">
           <div class="span12">
-            <h3> Running Applications </h3>
-            <br/>
+            <h4> Running Applications </h4>
+
             {activeAppsTable}
           </div>
         </div>
@@ -93,8 +100,7 @@ private[spark] class IndexPage(parent: MasterWebUI) {
 
         <div class="row">
           <div class="span12">
-            <h3> Completed Applications </h3>
-            <br/>
+            <h4> Completed Applications </h4>
             {completedAppsTable}
           </div>
         </div>;

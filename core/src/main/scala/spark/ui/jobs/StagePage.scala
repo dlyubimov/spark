@@ -42,13 +42,13 @@ private[spark] class StagePage(parent: JobProgressUI) {
     if (!listener.stageToTaskInfos.contains(stageId)) {
       val content =
         <div>
-          <h2>Summary Metrics</h2> No tasks have started yet
-          <h2>Tasks</h2> No tasks have started yet
+          <h4>Summary Metrics</h4> No tasks have started yet
+          <h4>Tasks</h4> No tasks have started yet
         </div>
       return headerSparkPage(content, parent.sc, "Stage Details: %s".format(stageId), Jobs)
     }
 
-    val tasks = listener.stageToTaskInfos(stageId)
+    val tasks = listener.stageToTaskInfos(stageId).toSeq
 
     val shuffleRead = listener.stageToShuffleRead(stageId) > 0
     val shuffleWrite = listener.stageToShuffleWrite(stageId) > 0
