@@ -158,12 +158,11 @@ class KryoSerializerSuite extends FunSuite with SharedSparkContext {
     assert(control.sum === result)
   }
 
-  // TODO: this still doesn't work
-  ignore("kryo with fold") {
+  test("kryo with fold") {
     val control = 1 :: 2 :: Nil
     val result = sc.parallelize(control, 2).map(new ClassWithoutNoArgConstructor(_))
         .fold(new ClassWithoutNoArgConstructor(10))((t1, t2) => new ClassWithoutNoArgConstructor(t1.x + t2.x)).x
-    assert(10 + control.sum === result)
+    assert(20 + control.sum === result)
   }
 
   override def beforeAll() {
