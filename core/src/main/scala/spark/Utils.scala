@@ -126,6 +126,24 @@ private object Utils extends Logging {
       private def readObject(in: ObjectInputStream) = fdeser(in)
     }
 
+  def serializeNestedVar1[T](out:ObjectOutputStream, what:T):Unit = {
+    val ser = SparkEnv.get.serializer
+    ser match {
+      case js:JavaSerializer => out.defaultWriteObject()
+      case _ => serializeViaNestedStream(out,ser.newInstance())(_.writeObject(what))
+    }
+  }
+
+  def deserializeNestedVar1[T](in: ObjectInputStream): T = {
+    val ser = SparkEnv.get.serializer
+    ser match {
+      case js: JavaSerializer => {
+        in.defaultReadObject(); Nothing
+      }
+      case _ => deserializeViaNestedStream(in, ser.newInstance())(_.readObject(): T)
+    }
+  }
+
   def isAlpha(c: Char): Boolean = {
     (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')
   }

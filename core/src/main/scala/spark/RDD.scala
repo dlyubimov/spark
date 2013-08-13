@@ -641,10 +641,21 @@ abstract class RDD[T: ClassManifest](
    * modify t2.
    */
   def fold(zeroValue: T)(op: (T, T) => T): T = {
+    import Utils._
     // Clone the zero value since we will also be serializing it as part of tasks
     var jobResult = Utils.clone(zeroValue, sc.env.closureSerializer.newInstance())
     val cleanOp = sc.clean(op)
-    val foldPartition = (iter: Iterator[T]) => iter.fold(zeroValue)(cleanOp)
+
+    val foldPartition = closure {
+      (iter: Iterator[T]) =>
+        iter.fold(zeroValue)(cleanOp)
+    }(
+
+      fser = (out) => serializeNestedVar1(out, zeroValue),
+
+      fdeser = (in) => deserializeNestedVar1(in)
+    )
+
     val mergeResult = (index: Int, taskResult: T) => jobResult = op(jobResult, taskResult)
     sc.runJob(this, foldPartition, mergeResult)
     jobResult
