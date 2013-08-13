@@ -110,6 +110,22 @@ private object Utils extends Logging {
     }
   }
 
+  /** A closure that needs custom serialization of closure variables */
+  def closure[T1, R](f: T1 => R)(
+      fser: ObjectOutputStream => Unit = (out) => out.defaultWriteObject(),
+      fdeser: ObjectInputStream => Unit = (in) => in.defaultReadObject()
+      ): T1 => R =
+
+    new Function1[T1, R] with Serializable {
+      def apply(v1: T1): R = f(v1)
+
+      @throws(classOf[IOException])
+      private def writeObject(out: ObjectOutputStream) = fser(out)
+
+      @throws(classOf[IOException])
+      private def readObject(in: ObjectInputStream) = fdeser(in)
+    }
+
   def isAlpha(c: Char): Boolean = {
     (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')
   }
