@@ -110,8 +110,8 @@ private object Utils extends Logging {
     }
   }
 
-  /** A closure that needs custom serialization of closure variables */
-  def closure[T1, R](f: T1 => R)(
+  /** A closure with exactly one argument that needs custom serialization of closure variables */
+  def closure1[T1, R](f: T1 => R)(
       fser: ObjectOutputStream => Unit = (out) => out.defaultWriteObject(),
       fdeser: ObjectInputStream => Unit = (in) => in.defaultReadObject()
       ): T1 => R =
@@ -134,13 +134,11 @@ private object Utils extends Logging {
     }
   }
 
-  def deserializeNestedVar1[T](in: ObjectInputStream): T = {
+  def deserializeNestedVar1[T](in: ObjectInputStream, fread: (DeserializationStream) => Unit): Unit = {
     val ser = SparkEnv.get.serializer
     ser match {
-      case js: JavaSerializer => {
-        in.defaultReadObject(); Nothing
-      }
-      case _ => deserializeViaNestedStream(in, ser.newInstance())(_.readObject(): T)
+      case js: JavaSerializer => in.defaultReadObject()
+      case _ => deserializeViaNestedStream(in, ser.newInstance())(fread)
     }
   }
 
