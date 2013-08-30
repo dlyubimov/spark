@@ -642,7 +642,10 @@ abstract class RDD[T: ClassManifest](
    */
   def fold(zeroValue: T)(op: (T, T) => T): T = {
     import Utils._
+
+    @transient
     var zv = zeroValue
+
     // Clone the zero value since we will also be serializing it as part of tasks
     var jobResult = Utils.clone(zv, sc.env.closureSerializer.newInstance())
     val cleanOp = sc.clean(op)

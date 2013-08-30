@@ -117,13 +117,25 @@ private object Utils extends Logging {
       ): T1 => R =
 
     new Function1[T1, R] with Serializable {
-      def apply(v1: T1): R = f(v1)
+      def apply(v1: T1): R = func(v1)
+
+      var func: T1 => R = f
+      var fserProc = fser
+      var fdeserProc = fdeser
 
       @throws(classOf[IOException])
-      private def writeObject(out: ObjectOutputStream) = fser(out)
+      private def writeObject(out: ObjectOutputStream) = {
+        out.writeObject(func)
+        out.writeObject(fdeserProc)
+        fserProc(out)
+      }
 
       @throws(classOf[IOException])
-      private def readObject(in: ObjectInputStream) = fdeser(in)
+      private def readObject(in: ObjectInputStream) = {
+        func = in.readObject().asInstanceOf[T1 => R]
+        fdeserProc = in.readObject().asInstanceOf[ObjectInputStream => Unit]
+        fdeserProc(in)
+      }
     }
 
   def serializeNestedVar1[T](out:ObjectOutputStream, what:T):Unit = {
